@@ -280,3 +280,101 @@ class DFS:
         path.append(s)
         return list(reversed(path))
 
+
+class BFS:
+    """
+    Breadth-First Search implementation for both undirected and directed graphs.
+    """
+
+    def __init__(self, g: AdjMatrixUndiGraph | AdjMatrixDiGraph):
+        """
+        Initializes a BFS object.
+
+        Parameters:
+        - graph: AdjMatrixUndiGraph or AdjMatrixDiGraph, the graph to perform BFS on.
+        """
+        self.g = g
+
+    def bfs_search(self, s: int) -> np.ndarray:
+        """
+        Performs BFS starting from vertex s.
+
+        Parameters:
+        - s: int, starting vertex index.
+
+        Returns:
+        - np.ndarray: Array of marked vertices after BFS.
+        """
+        marked = np.zeros(self.g.V, dtype=bool)
+        queue = [s]
+
+        while len(queue) != 0:
+            v = queue.pop(0)
+            for n in self.g.adj(v):
+                if not marked[n]:
+                    queue.append(n)
+            marked[v] = True
+        return marked
+
+    def has_path_to(self, s: int, v: int) -> bool:
+        """
+        Checks if there is a path from vertex s to vertex v.
+
+        Parameters:
+        - s: int, source vertex index.
+        - v: int, destination vertex index.
+
+        Returns:
+        - bool: True if there is a path, False otherwise.
+        """
+        marked, _ = self._bfs_search_path(s, v)
+        return marked[v]
+
+    def path_to(self, s: int, w: int) -> list:
+        """
+        Finds a path from vertex s to vertex w.
+
+        Parameters:
+        - s: int, source vertex index.
+        - w: int, destination vertex index.
+
+        Returns:
+        - list: List of vertices representing the path from s to w.
+        """
+        marked, edge_to = self._bfs_search_path(s, w)
+        path = []
+        if not marked[w]:
+            return path
+        i = w
+        while i != s:
+            path.append(i)
+            i = edge_to[i]
+        path.append(s)
+        return list(reversed(path))
+
+    def _bfs_search_path(self, s: int, w: int) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Helper function for BFS search for a specific destination vertex.
+
+        Parameters:
+        - s: int, source vertex index.
+        - w: int, destination vertex index.
+
+        Returns:
+            - tuple: Tuple of marked and edge_to np.ndarray s.
+        """
+        marked = np.zeros(self.g.V, dtype=bool)
+        edge_to = np.zeros(self.g.V, dtype=int)
+        queue = [s]
+
+        while len(queue) != 0:
+            v = queue.pop(0)
+            for n in self.g.adj(v):
+                if not marked[n]:
+                    queue.append(n)
+                    edge_to[n] = v
+            marked[v] = True
+            if v == w:
+                return marked, edge_to
+
+        return marked, edge_to
