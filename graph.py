@@ -82,15 +82,29 @@ class AdjMatrixDiGraph:
     Represents a directed graph using an adjacency matrix.
     """
 
-    def __init__(self, v: int):
+    def __init__(self, v: int = None, filename: str = None):
         """
-        Initializes an AdjMatrixDiGraph object.
+        Initializes an AdjMatrixUndiGraph object.
 
         Parameters:
-        - v: int, number of vertices.
+        - v: int, optional, number of vertices.
+        - filename: str, optional, name of the file to read the graph from.
         """
-        self.V = v
-        self.matrix = np.zeros((self.V, self.V), dtype=bool)
+
+        if filename is None and v is None:
+            raise ValueError("Both 'filename' and 'v' cannot be None!")
+
+        if filename is None:
+            self.V = v
+            self.matrix = np.zeros((self.V, self.V), dtype=bool)
+        else:
+            with open(filename) as file:
+                lines = file.readlines()
+                self.V = int(lines[0])
+                self.matrix = np.zeros((self.V, self.V), dtype=bool)
+                for line in lines[2:]:
+                    pairs = line.strip().split(' ')
+                    self.add_edge(int(pairs[0]), int(pairs[1]))
 
     def add_edge(self, v: int, w: int) -> None:
         """
