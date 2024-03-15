@@ -198,3 +198,85 @@ class GraphVisualizer:
         nx.draw(gr, node_size=node_size, with_labels=with_labels)
         plt.show()
 
+
+class DFS:
+    """
+    Depth-First Search implementation for both undirected and directed graphs.
+    """
+
+    def __init__(self, g: AdjMatrixUndiGraph | AdjMatrixDiGraph):
+        """
+        Initializes a DFS object.
+
+        Parameters:
+        - graph: AdjMatrixUndiGraph or AdjMatrixDiGraph, the graph to perform DFS on.
+        """
+        self.g = g
+
+    def has_path_to(self, s: int, v: int) -> bool:
+        """
+        Checks if there is a path from vertex s to vertex v.
+
+        Parameters:
+        - s: int, source vertex index.
+        - v: int, destination vertex index.
+
+        Returns:
+        - bool: True if there is a path, False otherwise.
+        """
+        marked, _ = self.dfs_search(s)
+        return marked[v]
+
+    def dfs_search(self, s: int) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Performs DFS starting from vertex s.
+
+        Parameters:
+        - s: int, starting vertex index.
+
+        Returns:
+        - tuple: Tuple of marked and edge_to np.ndarray s.
+        """
+
+        marked = np.zeros(self.g.V, dtype=bool)
+        edge_to = np.zeros(self.g.V, dtype=int)
+        self._recursive_dfs_search(s, marked, edge_to)
+        return marked, edge_to
+
+    def _recursive_dfs_search(self, s: int, marked: np.ndarray, edge_to: np.ndarray):
+        """
+        Helper function for recursive DFS search.
+
+        Parameters:
+        - s: int, current vertex index.
+        """
+        marked[s] = True
+        for n in self.g.adj(s):
+            if not marked[n]:
+                edge_to[n] = s
+                self._recursive_dfs_search(n, marked, edge_to)
+
+    def path_to(self, s: int, v: int) -> list:
+        """
+        Finds a path from vertex s to vertex v.
+
+        Parameters:
+        - s: int, source vertex index.
+        - v: int, destination vertex index.
+
+        Returns:
+        - list: List of vertices representing the path from s to v.
+        """
+        marked, edge_to = self.dfs_search(s)
+        path = []
+        if not marked[v]:
+            return path
+
+        i = v
+        while i != s:
+            path.append(i)
+            i = edge_to[i]
+
+        path.append(s)
+        return list(reversed(path))
+
