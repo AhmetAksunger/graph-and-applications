@@ -159,60 +159,6 @@ class AdjMatrixDiGraph:
         return np.argwhere(self.matrix[v]).flatten()
 
 
-class GraphVisualizer:
-    """
-    Visualizes graphs using NetworkX library.
-    """
-
-    def __init__(self, g: AdjMatrixUndiGraph | AdjMatrixDiGraph):
-        """
-        Initializes a GraphVisualizer object.
-
-        Parameters:
-        - graph: AdjMatrixUndiGraph or AdjMatrixDiGraph, the graph to visualize.
-        """
-        self.g = g
-
-    def visualize(self, node_size=500, with_labels=True) -> None:
-        """
-        Visualizes the graph.
-
-        Parameters:
-        - node_size: int, optional, size of the nodes in the visualization.
-        - with_labels: bool, optional, whether to display node labels.
-        """
-        if isinstance(self.g, AdjMatrixUndiGraph):
-            self._visualize_undirected(node_size, with_labels)
-        elif isinstance(self.g, AdjMatrixDiGraph):
-            self._visualize_directed(node_size, with_labels)
-
-    def _visualize_undirected(self, node_size=500, with_labels=True) -> None:
-        """
-        Visualizes an undirected graph.
-
-        Parameters:
-        - node_size: int, optional, size of the nodes in the visualization.
-        - with_labels: bool, optional, whether to display node labels.
-        """
-        gr = nx.Graph()
-        gr.add_edges_from(np.argwhere(self.g.matrix))
-        nx.draw(gr, node_size=node_size, with_labels=with_labels)
-        plt.show()
-
-    def _visualize_directed(self, node_size=500, with_labels=True) -> None:
-        """
-        Visualizes a directed graph.
-
-        Parameters:
-        - node_size: int, optional, size of the nodes in the visualization.
-        - with_labels: bool, optional, whether to display node labels.
-        """
-        gr = nx.DiGraph()
-        gr.add_edges_from(np.argwhere(self.g.matrix))
-        nx.draw(gr, node_size=node_size, with_labels=with_labels)
-        plt.show()
-
-
 class DFS:
     """
     Depth-First Search implementation for both undirected and directed graphs.
@@ -392,3 +338,51 @@ class BFS:
                 return marked, edge_to
 
         return marked, edge_to
+
+
+def visualize(g: AdjMatrixUndiGraph | AdjMatrixDiGraph | list[AdjMatrixUndiGraph | AdjMatrixDiGraph], node_size=500,
+              with_labels=True) -> None:
+    """
+    Visualizes the graph.
+
+    Parameters:
+    - g: AdjMatrixUndiGraph or AdjMatrixDiGraph or a list of these graph types.
+    - node_size: int, optional, size of the nodes in the visualization.
+    - with_labels: bool, optional, whether to display node labels.
+    """
+
+    def _visualize_undirected(graph: AdjMatrixUndiGraph | AdjMatrixDiGraph) -> None:
+        """
+        Visualizes an undirected graph.
+
+        Parameters:
+        - g: AdjMatrixUndiGraph or AdjMatrixDiGraph
+        - node_size: int, optional, size of the nodes in the visualization.
+        - with_labels: bool, optional, whether to display node labels.
+        """
+        gr = nx.Graph()
+        gr.add_edges_from(np.argwhere(graph.matrix))
+        nx.draw(gr, node_size=node_size, with_labels=with_labels)
+        plt.show()
+
+    def _visualize_directed(graph: AdjMatrixUndiGraph | AdjMatrixDiGraph) -> None:
+        """
+        Visualizes a directed graph.
+
+        Parameters:
+        - g: AdjMatrixUndiGraph or AdjMatrixDiGraph
+        - node_size: int, optional, size of the nodes in the visualization.
+        - with_labels: bool, optional, whether to display node labels.
+        """
+        gr = nx.DiGraph()
+        gr.add_edges_from(np.argwhere(graph.matrix))
+        nx.draw(gr, node_size=node_size, with_labels=with_labels)
+        plt.show()
+
+    if type(g) is not list:
+        g = [g]
+    for graph in g:
+        if isinstance(graph, AdjMatrixUndiGraph):
+            _visualize_undirected(graph)
+        elif isinstance(graph, AdjMatrixDiGraph):
+            _visualize_directed(graph)
