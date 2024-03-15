@@ -386,3 +386,16 @@ def visualize(g: AdjMatrixUndiGraph | AdjMatrixDiGraph | list[AdjMatrixUndiGraph
             _visualize_undirected(graph)
         elif isinstance(graph, AdjMatrixDiGraph):
             _visualize_directed(graph)
+
+
+def samples():
+    tiny = AdjMatrixUndiGraph(filename='datasets/tinyG.txt')
+    medium = AdjMatrixUndiGraph(filename='datasets/mediumG.txt')
+    medium2 = AdjMatrixUndiGraph(filename='datasets/mediumG2.txt')
+    medium3 = AdjMatrixDiGraph(filename='datasets/mediumG3.txt')
+    large = AdjMatrixUndiGraph(filename='datasets/largeG2.txt')
+    visualize(tiny, 350)
+    visualize([medium, medium2, medium3, large], 100, False)
+
+
+samples()
