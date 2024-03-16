@@ -24,6 +24,7 @@ class Maze:
         self._btn_barrier.pack(side='top')
         self._btn_barrier_done = tk.Button(self._window, text='Done', command=self._onclick_btn_barrier_done)
         self._btn_find_path = tk.Button(self._window, text='Find Path', command=self._onclick_btn_find_path)
+        self._btn_reset = tk.Button(self._window, text='Reset', command=self._onclick_btn_reset)
 
         self._in_barrier_state = False
         self._in_vertex_choosing_state = False
@@ -40,8 +41,8 @@ class Maze:
         """
         self._draw_pixels()
 
-        self._window.bind('<Button-1>', self._left_click)
-        self._window.bind('<B1-Motion>', self._drag)
+        self._canvas.bind('<Button-1>', self._left_click)
+        self._canvas.bind('<B1-Motion>', self._drag)
 
         self._window.mainloop()
 
@@ -72,6 +73,25 @@ class Maze:
         self.path = self.bfs.path_to(self._index_to_vertex(self._start[0], self._start[1]),
                                      self._index_to_vertex(self._end[0], self._end[1]))
         self._fill_path()
+        self._btn_find_path.pack_forget()
+        self._btn_reset.pack(side='top')
+
+    def _onclick_btn_reset(self) -> None:
+        """
+        Clears the canvas and resets the state of the maze.
+        :return: None
+        """
+        self._btn_reset.pack_forget()
+        self._canvas.delete("all")
+        self._draw_pixels()
+        self._start = ()
+        self._end = ()
+        self.path = []
+        self._in_barrier_state = False
+        self._in_vertex_choosing_state = False
+        self._chose_starting_point = False
+        self._chose_end_point = False
+        self._btn_barrier.pack(side='top')
         self._btn_find_path.pack_forget()
 
     def _left_click(self, event: tk.Event) -> None:
