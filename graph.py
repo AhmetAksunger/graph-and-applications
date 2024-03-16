@@ -3,20 +3,19 @@ import networkx as nx
 import numpy as np
 
 
-class AdjMatrixUndiGraph:
+class AdjMatrixGraph:
     """
-    Represents an undirected graph using an adjacency matrix.
+    Base class for both undirected and directed graphs using an adjacency matrix.
     """
 
     def __init__(self, v: int = None, filename: str = None):
         """
-        Initializes an AdjMatrixUndiGraph object.
+        Initializes a Graph object.
 
         Parameters:
         - v: int, optional, number of vertices.
         - filename: str, optional, name of the file to read the graph from.
         """
-
         if filename is None and v is None:
             raise ValueError("Both 'filename' and 'v' cannot be None!")
 
@@ -41,7 +40,6 @@ class AdjMatrixUndiGraph:
         - w: int, vertex index.
         """
         self.matrix[v][w] = True
-        self.matrix[w][v] = True
 
     def remove_edge(self, v: int, w: int) -> None:
         """
@@ -52,17 +50,6 @@ class AdjMatrixUndiGraph:
         - w: int, vertex index.
         """
         self.matrix[v][w] = False
-        self.matrix[w][v] = False
-
-    def clear_edges_of_vertex(self, v: int) -> None:
-        """
-        Clears all edges connected to vertex v.
-
-        Parameters:
-        - v: int, vertex index.
-        """
-        self.matrix[v, :] = False
-        self.matrix[:, v] = False
 
     def adj(self, v: int) -> np.ndarray:
         """
@@ -76,8 +63,65 @@ class AdjMatrixUndiGraph:
         """
         return np.argwhere(self.matrix[v]).flatten()
 
+    def clear_edges_of_vertex(self, v: int) -> None:
+        """
+        Abstract method to clear edges of a vertex.
 
-class AdjMatrixDiGraph:
+        Parameters:
+        - v: vertex v
+        """
+        pass
+
+
+class AdjMatrixUndiGraph(AdjMatrixGraph):
+    """
+    Represents an undirected graph using an adjacency matrix.
+    """
+
+    def __init__(self, v: int = None, filename: str = None):
+        """
+        Initializes an AdjMatrixUndiGraph object.
+
+        Parameters:
+        - v: int, optional, number of vertices.
+        - filename: str, optional, name of the file to read the graph from.
+        """
+        super().__init__(v, filename)
+
+    def add_edge(self, v: int, w: int) -> None:
+        """
+        Adds an edge between vertices v and w.
+
+        Parameters:
+        - v: int, vertex index.
+        - w: int, vertex index.
+        """
+        super().add_edge(v, w)
+        super().add_edge(w, v)
+
+    def remove_edge(self, v: int, w: int) -> None:
+        """
+        Removes the edge between vertices v and w.
+
+        Parameters:
+        - v: int, vertex index.
+        - w: int, vertex index.
+        """
+        super().remove_edge(v, w)
+        super().remove_edge(w, v)
+
+    def clear_edges_of_vertex(self, v: int) -> None:
+        """
+        Clears all edges originating from vertex v or connected to vertex v.
+
+        Parameters:
+        - v: int, vertex index.
+        """
+        self.matrix[v, :] = False
+        self.matrix[:, v] = False
+
+
+class AdjMatrixDiGraph(AdjMatrixGraph):
     """
     Represents a directed graph using an adjacency matrix.
     """
@@ -90,52 +134,7 @@ class AdjMatrixDiGraph:
         - v: int, optional, number of vertices.
         - filename: str, optional, name of the file to read the graph from.
         """
-
-        if filename is None and v is None:
-            raise ValueError("Both 'filename' and 'v' cannot be None!")
-
-        if filename is None:
-            self.V = v
-            self.matrix = np.zeros((self.V, self.V), dtype=bool)
-        else:
-            with open(filename) as file:
-                lines = file.readlines()
-                self.V = int(lines[0])
-                self.matrix = np.zeros((self.V, self.V), dtype=bool)
-                for line in lines[2:]:
-                    pairs = line.strip().split(' ')
-                    self.add_edge(int(pairs[0]), int(pairs[1]))
-
-    def add_edge(self, v: int, w: int) -> None:
-        """
-        Adds a directed edge from vertex v to vertex w.
-
-        Parameters:
-        - v: int, source vertex index.
-        - w: int, destination vertex index.
-        """
-        self.matrix[v][w] = True
-
-    def remove_edge(self, v: int, w: int) -> None:
-        """
-        Removes the directed edge from vertex v to vertex w.
-
-        Parameters:
-        - v: int, source vertex index.
-        - w: int, destination vertex index.
-        """
-        self.matrix[v][w] = False
-
-    def remove_both_edges(self, v: int, w: int) -> None:
-        """
-        Removes both directed edges between vertices v and w.
-
-        Parameters:
-        - v: int, vertex index.
-        - w: int, vertex index.
-        """
-        self.remove_edge(v, w)
-        self.remove_edge(w, v)
+        super().__init__(v, filename)
 
     def clear_edges_of_vertex(self, v: int) -> None:
         """
@@ -146,25 +145,13 @@ class AdjMatrixDiGraph:
         """
         self.matrix[v, :] = False
 
-    def adj(self, v: int) -> np.ndarray:
-        """
-        Returns an array of vertices adjacent to vertex v.
-
-        Parameters:
-        - v: int, vertex index.
-
-        Returns:
-        - np.ndarray: Array of adjacent vertices.
-        """
-        return np.argwhere(self.matrix[v]).flatten()
-
 
 class DFS:
     """
     Depth-First Search implementation for both undirected and directed graphs.
     """
 
-    def __init__(self, g: AdjMatrixUndiGraph | AdjMatrixDiGraph):
+    def __init__(self, g: AdjMatrixGraph):
         """
         Initializes a DFS object.
 
@@ -340,7 +327,7 @@ class BFS:
         return marked, edge_to
 
 
-def visualize(g: AdjMatrixUndiGraph | AdjMatrixDiGraph | list[AdjMatrixUndiGraph | AdjMatrixDiGraph], node_size=500,
+def visualize(g: AdjMatrixGraph | list[AdjMatrixGraph], node_size=500,
               with_labels=True) -> None:
     """
     Visualizes the graph.
@@ -351,7 +338,7 @@ def visualize(g: AdjMatrixUndiGraph | AdjMatrixDiGraph | list[AdjMatrixUndiGraph
     - with_labels: bool, optional, whether to display node labels.
     """
 
-    def _visualize_undirected(graph: AdjMatrixUndiGraph | AdjMatrixDiGraph) -> None:
+    def _visualize_undirected(graph: AdjMatrixGraph) -> None:
         """
         Visualizes an undirected graph.
 
@@ -365,7 +352,7 @@ def visualize(g: AdjMatrixUndiGraph | AdjMatrixDiGraph | list[AdjMatrixUndiGraph
         nx.draw(gr, node_size=node_size, with_labels=with_labels)
         plt.show()
 
-    def _visualize_directed(graph: AdjMatrixUndiGraph | AdjMatrixDiGraph) -> None:
+    def _visualize_directed(graph: AdjMatrixGraph) -> None:
         """
         Visualizes a directed graph.
 
