@@ -182,7 +182,7 @@ class DFS:
         - s: int, starting vertex index.
 
         Returns:
-        - tuple: Tuple of marked and edge_to np.ndarray s.
+        - tuple: Tuple of _marked and edge_to np.ndarray s.
         """
 
         marked = np.zeros(self.g.V, dtype=bool)
@@ -250,7 +250,7 @@ class BFS:
         - s: int, starting vertex index.
 
         Returns:
-        - np.ndarray: Array of marked vertices after BFS.
+        - np.ndarray: Array of _marked vertices after BFS.
         """
         marked = np.zeros(self.g.V, dtype=bool)
         queue = [s]
@@ -308,7 +308,7 @@ class BFS:
         - w: int, destination vertex index.
 
         Returns:
-            - tuple: Tuple of marked and edge_to np.ndarray s.
+            - tuple: Tuple of _marked and edge_to np.ndarray s.
         """
         marked = np.zeros(self.g.V, dtype=bool)
         edge_to = np.zeros(self.g.V, dtype=int)
@@ -325,6 +325,32 @@ class BFS:
                 return marked, edge_to
 
         return marked, edge_to
+
+
+class UndirectedGraphUtil(DFS, BFS):
+    def __init__(self, g: AdjMatrixUndiGraph):
+        DFS.__init__(self, g)
+        BFS.__init__(self, g)
+        self.g = g
+        self._has_cycle = False
+        self._marked = np.zeros(self.g.V, dtype=bool)
+
+    def has_cycle(self):
+        for i in range(self.g.V):
+            if not self._marked[i]:
+                self._dfs(i)
+        return self._has_cycle
+
+    def _dfs(self, s: int):
+        self._recursive_dfs(s, s)
+
+    def _recursive_dfs(self, s: int, parent: int):
+        self._marked[s] = True
+        for n in self.g.adj(s):
+            if not self._marked[n]:
+                self._recursive_dfs(n, s)
+            elif n != parent:
+                self._has_cycle = True
 
 
 def visualize(g: AdjMatrixGraph | list[AdjMatrixGraph], node_size=500,
@@ -385,4 +411,13 @@ def samples():
     visualize([medium, medium2, medium3, large], 100, False)
 
 
-samples()
+g = AdjMatrixUndiGraph(7)
+g.add_edge(1, 2)
+g.add_edge(2, 3)
+g.add_edge(3, 4)
+g.add_edge(4, 5)
+g.add_edge(5, 6)
+g.add_edge(6, 3)
+visualize(g)
+util = UndirectedGraphUtil(g)
+print(util.has_cycle())
