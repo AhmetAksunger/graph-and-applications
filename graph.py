@@ -327,13 +327,37 @@ class BFS:
         return marked, edge_to
 
 
-class UndirectedGraphUtil(DFS, BFS):
-    def __init__(self, g: AdjMatrixUndiGraph):
+class GraphUtil(DFS, BFS):
+    def __init__(self, g: AdjMatrixGraph):
         DFS.__init__(self, g)
         BFS.__init__(self, g)
         self.g = g
         self._has_cycle = False
-        self._marked = np.zeros(self.g.V, dtype=bool)
+
+    def has_cycle(self):
+        marked = np.zeros(self.g.V, dtype=bool)
+        for i in range(self.g.V):
+            if not marked[i]:
+                self._dfs(i, marked)
+        return self._has_cycle
+
+    def _dfs(self, s: int, marked):
+        self._recursive_dfs(s, s, marked)
+
+    def _recursive_dfs(self, s: int, parent: int, marked):
+        marked[s] = True
+        for n in self.g.adj(s):
+            if not marked[n]:
+                self._recursive_dfs(n, s, marked)
+            elif n != parent:
+                self._has_cycle = True
+
+
+class UndirectedGraphUtil(GraphUtil):
+    def __init__(self, g: AdjMatrixUndiGraph):
+        GraphUtil.__init__(self, g)
+        self.g = g
+
 
     def has_cycle(self):
         for i in range(self.g.V):
