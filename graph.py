@@ -359,22 +359,31 @@ class UndirectedGraphUtil(GraphUtil):
         self.g = g
 
 
-    def has_cycle(self):
-        for i in range(self.g.V):
-            if not self._marked[i]:
-                self._dfs(i)
-        return self._has_cycle
+class DirectedGraphUtil(GraphUtil):
 
-    def _dfs(self, s: int):
-        self._recursive_dfs(s, s)
+    def __init__(self, g: AdjMatrixDiGraph):
+        GraphUtil.__init__(self, g)
+        self.g = g
 
-    def _recursive_dfs(self, s: int, parent: int):
-        self._marked[s] = True
-        for n in self.g.adj(s):
-            if not self._marked[n]:
-                self._recursive_dfs(n, s)
-            elif n != parent:
-                self._has_cycle = True
+    def topological_sort(self):
+
+        if self.has_cycle():
+            raise TypeError('Topological sort can only be performed to ACYCLIC graphs')
+
+        marked = np.zeros(self.g.V, dtype=bool)
+        s = []
+
+        for v in range(self.g.V):
+            if not marked[v]:
+                self._reverse_post_order(v, s, marked)
+        return s
+
+    def _reverse_post_order(self, v, s, marked):
+        marked[v] = True
+        for n in self.g.adj(v):
+            if not marked[n]:
+                self._reverse_post_order(n, s, marked)
+        s.append(v)
 
 
 def visualize(g: AdjMatrixGraph | list[AdjMatrixGraph], node_size=500,
