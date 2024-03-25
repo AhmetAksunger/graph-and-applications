@@ -374,6 +374,7 @@ def visualize(g: AdjMatrixGraph | list[AdjMatrixGraph], node_size=500,
         - with_labels: bool, optional, whether to display node labels.
         """
         gr = nx.Graph()
+        gr.add_nodes_from(range(graph.V))
         gr.add_edges_from(np.argwhere(graph.matrix))
         nx.draw(gr, node_size=node_size, with_labels=with_labels)
         plt.show()
@@ -388,6 +389,7 @@ def visualize(g: AdjMatrixGraph | list[AdjMatrixGraph], node_size=500,
         - with_labels: bool, optional, whether to display node labels.
         """
         gr = nx.DiGraph()
+        gr.add_nodes_from(range(graph.V))
         gr.add_edges_from(np.argwhere(graph.matrix))
         nx.draw(gr, node_size=node_size, with_labels=with_labels)
         plt.show()
