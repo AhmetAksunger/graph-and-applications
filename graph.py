@@ -254,16 +254,45 @@ class EdgeWeightedGraphUtil:
                     pq.put((new_dist, w))
         return dist
 
+    def bellman_ford_shortest(self, s: int) -> list[tuple]:
+        """
+        Finds the shortest distance from vertex s to every other vertex using the bellman ford algorithm.
+        :param s: source vertex
+        :return: A list of tuples consisting of
+        0 - shortest distance to every other vertex
+        1 - previous vertex that goes to the specific vertex
+        """
+        dist = [(float('inf'), vertex) for vertex in range(self.g.V)]
+        dist[s] = (0, None)
+
+        for i in range(self.g.V - 1):
+            relaxed = False
+            for edge in self.g.edges():
+                new_dist = dist[edge.v][0] + edge.weight
+                if dist[edge.w][0] > new_dist:
+                    dist[edge.w] = new_dist, edge.v
+                    relaxed = True
+
+            if not relaxed:
+                break
+        return dist
+
     def shortest_path(self, s: int, d: int) -> tuple[float, list]:
         """
-        Finds the shortest path using the dijkstra's algorithm with backtracing.
+        Finds the shortest path using either dijkstra's algorithm or bellman ford's algorithm; with backtracking.
+        If the graph contains negative weights, the bellman ford's algorithm is used.
+        Else, dijkstra's algorithm is used.
         :param s: source vertex
         :param d: destination vertex
         :return: a tuple consisting of
         0 - distance
         1 - a list of vertices representing the path
         """
-        dist = self.dijkstra_shortest(s)
+
+        if self.g.has_negative:
+            dist = self.bellman_ford_shortest(s)
+        else:
+            dist = self.dijkstra_shortest(s)
         cost = dist[d][0]
         path = [d]
         current = dist[d][1]
