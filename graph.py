@@ -83,7 +83,7 @@ class AdjMatrixUndiGraph(AdjMatrixGraph):
     Represents an undirected graph using an adjacency matrix.
     """
 
-    def __init__(self, v: int = None, filename: str = None):
+    def __init__(self, v: int = None, filename: str = None, matrix: np.ndarray[bool] = None):
         """
         Initializes an AdjMatrixUndiGraph object.
 
@@ -91,7 +91,7 @@ class AdjMatrixUndiGraph(AdjMatrixGraph):
         - v: int, optional, number of vertices.
         - filename: str, optional, name of the file to read the graph from.
         """
-        super().__init__(v, filename)
+        super().__init__(v, filename, matrix)
 
     def add_edge(self, v: int, w: int) -> None:
         """
