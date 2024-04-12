@@ -196,6 +196,12 @@ class EdgeWeightedGraph:
     def adj(self, v: int) -> list[Edge]:
         return self.adj_list[v]
 
+    def edges(self):
+        all_edges = []
+        for edges in self.adj_list:
+            all_edges.extend(edges)
+        return all_edges
+
     def visualize(self):
         G = nx.Graph()
 
