@@ -154,6 +154,42 @@ class AdjMatrixDiGraph(AdjMatrixGraph):
         return AdjMatrixDiGraph(matrix=self.matrix.T)
 
 
+class EdgeWeightedGraph:
+    class Edge:
+        def __init__(self, v: int, w: int, weight: float):
+            self.v = v
+            self.w = w
+            self.weight = weight
+
+        def either(self) -> int:
+            return self.v
+
+        def other(self, vertex: int) -> int:
+            if vertex == self.v:
+                return self.w
+            if vertex == self.w:
+                return self.v
+
+    def __init__(self, V: int):
+        self.V = V
+        self.adj_list = [[] for _ in range(self.V)]
+
+    def add_edge(self, v: int, w: int, weight: float) -> None:
+        edge = self.Edge(v, w, weight)
+        self.adj_list[v].append(edge)
+        self.adj_list[w].append(edge)
+
+    def remove_edge(self, v: int, w: int):
+        for edge in self.adj_list[v]:
+            if edge.other(v) == w:
+                self.adj_list[v].remove(edge)
+                self.adj_list[w].remove(edge)
+                return
+
+    def adj(self, v: int) -> list[Edge]:
+        return self.adj_list[v]
+
+
 class DFS:
     """
     Depth-First Search implementation for both undirected and directed graphs.
