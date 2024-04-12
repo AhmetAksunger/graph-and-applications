@@ -8,7 +8,7 @@ class AdjMatrixGraph:
     Base class for both undirected and directed graphs using an adjacency matrix.
     """
 
-    def __init__(self, v: int = None, filename: str = None):
+    def __init__(self, v: int = None, filename: str = None, matrix: np.ndarray[bool] = None):
         """
         Initializes a Graph object.
 
@@ -16,12 +16,17 @@ class AdjMatrixGraph:
         - v: int, optional, number of vertices.
         - filename: str, optional, name of the file to read the graph from.
         """
-        if filename is None and v is None:
-            raise ValueError("Both 'filename' and 'v' cannot be None!")
+
+        if filename is None and v is None and matrix is None:
+            raise ValueError("All 'filename', 'v' and 'matrix' cannot be None!")
 
         if filename is None:
-            self.V = v
-            self.matrix = np.zeros((self.V, self.V), dtype=bool)
+            if matrix is None:
+                self.V = v
+                self.matrix = np.zeros((self.V, self.V), dtype=bool)
+            elif v is None:
+                self.matrix = matrix
+                self.V = matrix.shape[0]
         else:
             with open(filename) as file:
                 lines = file.readlines()
@@ -126,7 +131,7 @@ class AdjMatrixDiGraph(AdjMatrixGraph):
     Represents a directed graph using an adjacency matrix.
     """
 
-    def __init__(self, v: int = None, filename: str = None):
+    def __init__(self, v: int = None, filename: str = None, matrix: np.ndarray = None):
         """
         Initializes an AdjMatrixUndiGraph object.
 
@@ -134,7 +139,7 @@ class AdjMatrixDiGraph(AdjMatrixGraph):
         - v: int, optional, number of vertices.
         - filename: str, optional, name of the file to read the graph from.
         """
-        super().__init__(v, filename)
+        super().__init__(v, filename, matrix)
 
     def clear_edges_of_vertex(self, v: int) -> None:
         """
@@ -144,6 +149,9 @@ class AdjMatrixDiGraph(AdjMatrixGraph):
         - v: int, vertex index.
         """
         self.matrix[v, :] = False
+
+    def reverse(self):
+        return AdjMatrixDiGraph(matrix=self.matrix.T)
 
 
 class DFS:
