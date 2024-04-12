@@ -175,6 +175,7 @@ class EdgeWeightedGraph:
     def __init__(self, V: int):
         self.V = V
         self.adj_list = [[] for _ in range(self.V)]
+        self.has_negative = False
 
     def add_edge(self, v: int, w: int, weight: float) -> None:
 
@@ -230,6 +231,10 @@ class EdgeWeightedGraphUtil:
         :param s: Source vertex
         :return: A list of shortest distance to every other vertex
         """
+
+        if self.g.has_negative:
+            raise ValueError('Graphs that contain negative weights are not suitable for Dijkstra\'s Algorithm')
+
         pq = PriorityQueue()
         visited = [False] * self.g.V
         dist = [(float('inf'), vertex) for vertex in range(self.g.V)]
