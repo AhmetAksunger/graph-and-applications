@@ -177,9 +177,14 @@ class EdgeWeightedGraph:
         self.adj_list = [[] for _ in range(self.V)]
 
     def add_edge(self, v: int, w: int, weight: float) -> None:
-        edge = self.Edge(v, w, weight)
-        self.adj_list[v].append(edge)
-        self.adj_list[w].append(edge)
+
+        if weight < 0:
+            self.has_negative = True
+
+        edge1 = self.Edge(v, w, weight)
+        edge2 = self.Edge(w, v, weight)
+        self.adj_list[v].append(edge1)
+        self.adj_list[w].append(edge2)
 
     def remove_edge(self, v: int, w: int):
         for edge in self.adj_list[v]:
