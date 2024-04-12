@@ -1,3 +1,5 @@
+from queue import PriorityQueue
+
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
@@ -188,6 +190,72 @@ class EdgeWeightedGraph:
 
     def adj(self, v: int) -> list[Edge]:
         return self.adj_list[v]
+
+    def visualize(self):
+        G = nx.Graph()
+
+        for v, edges in enumerate(self.adj_list):
+            for edge in edges:
+                G.add_edge(str(v), str(edge.other(v)), weight=edge.weight)
+
+        pos = nx.spring_layout(G)  # Using spring layout for better visualization
+        labels = {node: node for node in G.nodes()}  # Node labels for display
+        edge_labels = {(u, v): G[u][v]['weight'] for u, v in G.edges()}  # Edge labels for weights
+
+        nx.draw(G, pos, with_labels=True, labels=labels, node_color='lightblue', font_weight='bold', node_size=1000)
+        nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
+
+        plt.title("Edge Weighted Graph")
+        plt.show()
+
+
+class EdgeWeightedGraphUtil:
+    def __init__(self, g: EdgeWeightedGraph):
+        self.g = g
+
+    def dijkstra_shortest(self, s: int) -> list[tuple]:
+        """
+        Finds the shortest distance to every other vertex using dijkstra's algorithm.
+        :param s: Source vertex
+        :return: A list of shortest distance to every other vertex
+        """
+        pq = PriorityQueue()
+        visited = [False] * self.g.V
+        dist = [(float('inf'), vertex) for vertex in range(self.g.V)]
+        dist[s] = (0, None)
+        pq.put((0, s))
+        while pq.qsize() != 0:
+            min_dist, vertex = pq.get()
+            visited[vertex] = True
+            for edge in self.g.adj(vertex):
+                w = edge.other(vertex)
+                if visited[w]:
+                    continue
+
+                new_dist = dist[vertex][0] + edge.weight
+                if dist[w][0] > new_dist:
+                    dist[w] = (new_dist, vertex)
+                    pq.put((new_dist, w))
+        return dist
+
+    def shortest_path(self, s: int, d: int) -> tuple[float, list]:
+        """
+        Finds the shortest path using the dijkstra's algorithm with backtracing.
+        :param s: source vertex
+        :param d: destination vertex
+        :return: a tuple consisting of
+        0 - distance
+        1 - a list of vertices representing the path
+        """
+        dist = self.dijkstra_shortest(s)
+        cost = dist[d][0]
+        path = [d]
+        current = dist[d][1]
+        while current:
+            path.append(current)
+            current = dist[current][1]
+        path.append(s)
+        return cost, list(reversed(path))
 
 
 class DFS:
